@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 
 export default withAuth(
-  function middleware(req) {
+  function middleware() {
     console.log("Middleware is running..."); // Debugging
     return NextResponse.next();
   },

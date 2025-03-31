@@ -2,8 +2,19 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET() {
-  const forums = await prisma.forum.findMany({ include: { user: true } });
-  return NextResponse.json(forums);
+  try {
+    const forums = await prisma.forum.findMany();
+    
+    return NextResponse.json(
+      forums.map((forum) => ({
+        ...forum,
+        id: String(forum.id), // 🔹 Ensure ID is a string
+      })),
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch forums",errorDettails:error }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

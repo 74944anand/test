@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import ForumCard from "@/components/ForumCard";
 
 export interface Forum {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  userId: number;
+  userId: string;
   createdAt: string;
 }
 

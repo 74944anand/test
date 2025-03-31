@@ -3,14 +3,14 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   _req: Request,
-  context: { params: { forumId: string; id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const {  id } = await context.params; // ✅ Await params
 
   try {
     // Find the comment
     const comment = await prisma.comment.findUnique({
-      where: { id: id },
+      where: { id },
     });
 
     if (!comment) {
@@ -19,7 +19,7 @@ export async function DELETE(
 
     // Delete the comment
     await prisma.comment.delete({
-      where: { id: id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Comment deleted successfully" }, { status: 200 });

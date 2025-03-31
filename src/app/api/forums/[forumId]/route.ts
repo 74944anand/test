@@ -1,8 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(_req: Request, context: { params: { forumId: string } }) {
-  const { forumId } = context.params;
+export async function GET(_req: Request, context: { params: Promise<{ forumId: string }> }) {
+  const { forumId } = await context.params; // ✅ Await params
 
   try {
     const forum = await prisma.forum.findUnique({
@@ -21,11 +21,11 @@ export async function GET(_req: Request, context: { params: { forumId: string } 
   }
 }
 
-export async function DELETE(_req: Request, context: { params: { forumId: string } }) {
-  const { forumId } = context.params;
+export async function DELETE(_req: Request, context: { params: Promise<{ forumId: string }> }) {
+  const { forumId } = await context.params; // ✅ Await params
 
   try {
-    // Delete all comments associated with the forum first (optional, but recommended for data integrity)
+    // Delete all comments associated with the forum first
     await prisma.comment.deleteMany({
       where: { forumId },
     });

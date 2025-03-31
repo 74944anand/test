@@ -39,8 +39,12 @@ export default function CreateForum() {
       }
       alert("Forum created successfully!");
       router.push("/"); // Redirect to the forum page after successful creation
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     }
   };
 

@@ -37,8 +37,12 @@ export default function CommentForm({ forumId }: { forumId: string }) {
       alert("Comment added successfully!");
       setContent(""); // Clear input after success
       window.location.reload(); // Refresh comments
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     }
   };
 

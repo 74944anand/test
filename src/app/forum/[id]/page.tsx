@@ -5,12 +5,34 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import CommentForm from "./CommentForm";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface Comment {
+  id: string;
+  content: string;
+  createdAt: string;
+  user: User;
+}
+
+interface Forum {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  user: User;
+  comments: Comment[];
+}
+
 export default function ForumDetails() {
-  const { id } = useParams(); // ✅ Extracting `id` using useParams()
+  const { id } = useParams();
   const { data: session } = useSession();
   const router = useRouter();
 
-  const [forum, setForum] = useState<any>(null);
+  const [forum, setForum] = useState<Forum | null>(null);
   const [loading, setLoading] = useState(true);
   const [isForumOwner, setIsForumOwner] = useState(false);
 
@@ -20,7 +42,7 @@ export default function ForumDetails() {
         const res = await fetch(`/api/forums/${id}`);
         if (!res.ok) throw new Error("Forum not found");
 
-        const data = await res.json();
+        const data: Forum = await res.json();
         setForum(data);
 
         if (session?.user?.email && data.user?.email === session.user.email) {
@@ -43,7 +65,7 @@ export default function ForumDetails() {
 
     try {
       await fetch(`/api/forums/${forum.id}`, { method: "DELETE" });
-      router.push("/"); // ✅ Redirect to home after deletion
+      router.push("/");
     } catch (error) {
       console.error("Error deleting forum:", error);
     }
@@ -51,11 +73,15 @@ export default function ForumDetails() {
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      await fetch(`/api/forums/${forum.id}/comments/${commentId}`, { method: "DELETE" });
-      setForum((prevForum: any) => ({
-        ...prevForum,
-        comments: prevForum.comments.filter((comment: any) => comment.id !== commentId),
-      }));
+      await fetch(`/api/forums/${forum?.id}/comments/${commentId}`, { method: "DELETE" });
+      setForum((prevForum) =>
+        prevForum
+          ? {
+              ...prevForum,
+              comments: prevForum.comments.filter((comment) => comment.id !== commentId),
+            }
+          : null
+      );
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
@@ -68,16 +94,11 @@ export default function ForumDetails() {
     <div className="p-4">
       <h1 className="text-2xl font-bold">{forum.title}</h1>
       <p className="mt-2 text-gray-600">{forum.description}</p>
-      <p className="mt-4 text-sm text-gray-400">
-        Posted on: {new Date(forum.createdAt).toLocaleString()}
-      </p>
+      <p className="mt-4 text-sm text-gray-400">Posted on: {new Date(forum.createdAt).toLocaleString()}</p>
       <p className="text-sm text-gray-400">By: {forum.user.name}</p>
 
       {isForumOwner && (
-        <button
-          className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-          onClick={handleDeleteForum}
-        >
+        <button className="mt-4 px-4 py-2 bg-red-500 text-white rounded" onClick={handleDeleteForum}>
           Delete Forum
         </button>
       )}
@@ -85,10 +106,10 @@ export default function ForumDetails() {
       {/* ✅ Comment Section */}
       <div className="mt-6">
         <h2 className="text-xl font-semibold">Comments</h2>
-        <CommentForm forumId={forum.id}  />
+        <CommentForm forumId={forum.id} />
         {forum.comments.length > 0 ? (
           <ul className="mt-4 space-y-3">
-            {forum.comments.map((comment: any) => (
+            {forum.comments.map((comment) => (
               <li key={comment.id} className="border p-2 rounded">
                 <p>{comment.content}</p>
                 <p className="text-sm text-gray-500">
