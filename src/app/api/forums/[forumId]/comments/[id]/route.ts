@@ -5,10 +5,10 @@ export async function DELETE(
   _req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const {  id } = await context.params; // ✅ Await params
+  const {  id } = await context.params;
 
   try {
-    // Find the comment
+   
     const comment = await prisma.comment.findUnique({
       where: { id },
     });
