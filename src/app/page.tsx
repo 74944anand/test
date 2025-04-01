@@ -19,6 +19,7 @@ export default function Home() {
       .then(setForums);
   }, []);
 
+  if(forums?.length === 0) return <div>No forums Available...</div>;
   return (
     <div>
       {forums.map((forum) => {
